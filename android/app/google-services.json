@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "366625529043",
+    "firebase_url": "https://is12-5356f-default-rtdb.firebaseio.com",
+    "project_id": "is12-5356f",
+    "storage_bucket": "is12-5356f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:366625529043:android:52a727ce21a7280c0c8826",
+        "android_client_info": {
+          "package_name": "com.example.techcareapp1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "366625529043-u5ambrpi2l66g2bce3qo1258pce9o5lp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCScxddCt9UgvOryCbBxNdSEEp6KVv5Eu4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "366625529043-u5ambrpi2l66g2bce3qo1258pce9o5lp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
