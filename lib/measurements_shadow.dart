@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class MeasurementsScreen extends StatefulWidget {
   final String pCode;
@@ -11,24 +12,56 @@ class MeasurementsScreen extends StatefulWidget {
 }
 
 class _MeasurementsScreenState extends State<MeasurementsScreen> {
-  // Store the future here
-  late Future<Map<String, String>> measurementsFuture;
+  int firstValue = 0;
+  int secondValue = 0;
+  DateTime selectedDate = DateTime.now();
+  String selectedDayLabel = "Today";
 
   @override
   void initState() {
     super.initState();
-    measurementsFuture = fetchMeasurements(); // Initialize the future
+    fetchMeasurements();
   }
 
-  Future<Map<String, String>> fetchMeasurements() async {
-    DateTime now = DateTime.now();
-    DateTime startOfDay = DateTime(now.year, now.month, now.day);
-    DateTime endOfDay = startOfDay.add(const Duration(days: 1));
+  void _changeDay(bool next) {
+    setState(() {
+      selectedDate = next
+          ? selectedDate.add(const Duration(days: 1))
+          : selectedDate.subtract(const Duration(days: 1));
+      selectedDayLabel = _getLabelForDate(selectedDate);
+    });
+    fetchMeasurements();
+  }
 
-    print('Current date: $now');
-    print('Start of day: $startOfDay');
-    print('End of day: $endOfDay');
-    print('Fetching measurements for pCode: ${widget.pCode}');
+  String _getLabelForDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final target = DateTime(date.year, date.month, date.day);
+
+    if (target == today) return "Today";
+    if (target == today.subtract(const Duration(days: 1))) return "Yesterday";
+    return DateFormat('d MMM yyyy').format(target);
+  }
+
+  Future<void> _showCalendarDialog() async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() {
+        selectedDate = picked;
+        selectedDayLabel = _getLabelForDate(selectedDate);
+      });
+      fetchMeasurements();
+    }
+  }
+
+  Future<void> fetchMeasurements() async {
+    DateTime startOfDay = DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+    DateTime endOfDay = startOfDay.add(const Duration(days: 1));
 
     final snapshot = await FirebaseFirestore.instance
         .collection('Sugar Measurements')
@@ -36,39 +69,28 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
         .collection('BloodSugarReadings')
         .where('timestamp', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
         .where('timestamp', isLessThan: Timestamp.fromDate(endOfDay))
+        .orderBy('timestamp', descending: true)
         .get();
 
-    print('Documents found: ${snapshot.docs.length}');
+    QueryDocumentSnapshot? firstReading;
+    QueryDocumentSnapshot? secondReading;
 
-    String fetchedFirst = 'N/A';
-    String fetchedSecond = 'N/A';
+    try {
+      firstReading = snapshot.docs.firstWhere((doc) => doc['measurement']['type'] == 'first');
+    } catch (_) {}
 
-    for (var doc in snapshot.docs) {
-      final data = doc.data();
-      print('Document data: $data');
+    try {
+      secondReading = snapshot.docs.firstWhere((doc) => doc['measurement']['type'] == 'second');
+    } catch (_) {}
 
-      final measurement = data['measurement'];
-
-      if (measurement != null && measurement is Map<String, dynamic>) {
-        final type = measurement['type'];
-        final value = measurement['value']?.toString();
-
-        print('Type: $type - Value: $value');
-
-        if (type == 'First') {
-          fetchedFirst = value ?? 'N/A';
-        } else if (type == 'Second') {
-          fetchedSecond = value ?? 'N/A';
-        }
-      }
-    }
-    // Return a map containing both measurements
-    return {'first': fetchedFirst, 'second': fetchedSecond};
+    setState(() {
+      firstValue = firstReading != null ? firstReading['measurement']['value'] : 0;
+      secondValue = secondReading != null ? secondReading['measurement']['value'] : 0;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    print('Building screen');
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
@@ -85,9 +107,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+                      onPressed: () => Navigator.pop(context),
                     ),
                     const SizedBox(width: 60),
                     const Text(
@@ -106,44 +126,71 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
           ),
         ),
       ),
-      body: Container(
+      body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios, color: Color(0xFFE8883C)),
+                  onPressed: () => _changeDay(false),
+                ),
+                Text(
+                  selectedDayLabel,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_forward_ios, color: Color(0xFFE8883C)),
+                  onPressed: () => _changeDay(true),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.calendar_today, color: Color(0xFFE8883C), size: 20),
+                  onPressed: _showCalendarDialog,
+                ),
+              ],
+            ),
             const SizedBox(height: 20),
             const MeasurementStatus(),
             const SizedBox(height: 20),
-            // Use FutureBuilder to handle the asynchronous operation
-            FutureBuilder<Map<String, String>>(
-              future: measurementsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  // Show a loading indicator while waiting for the data
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  // Display an error message if something went wrong
-                  return Text('Error: ${snapshot.error}');
-                } else if (snapshot.hasData) {
-                  // Extract the data from the snapshot
-                  final firstMeasurement = snapshot.data!['first']!;
-                  final secondMeasurement = snapshot.data!['second']!;
-
-                  // Build the UI with the fetched data
-                  return Column(
-                    children: [
-                      MeasurementCard(label: "1st Measurement:", value: firstMeasurement),
-                      const SizedBox(height: 15),
-                      MeasurementCard(label: "2nd Measurement:", value: secondMeasurement),
-                    ],
-                  );
-                } else {
-                  // Handle the case where no data is available
-                  return const Text('No measurements found for today.');
-                }
-              },
-            ),
+            measurementCard("1st Measurement", firstValue),
+            const SizedBox(height: 15),
+            measurementCard("2nd Measurement", secondValue),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget measurementCard(String title, int value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 18),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black12),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(title, style: const TextStyle(fontSize: 16)),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: value > 120 ? Colors.red[100] : Colors.green[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              "$value Mg/DL",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: value > 120 ? Colors.red : Colors.green,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -166,45 +213,6 @@ class MeasurementStatus extends StatelessWidget {
           Text("Status:", style: TextStyle(fontSize: 16)),
           SizedBox(width: 10),
           Icon(Icons.flag, color: Colors.green),
-        ],
-      ),
-    );
-  }
-}
-
-class MeasurementCard extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const MeasurementCard({super.key, required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 18),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black12),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(label, style: const TextStyle(fontSize: 16)),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: Colors.green.shade300,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              value,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          )
         ],
       ),
     );

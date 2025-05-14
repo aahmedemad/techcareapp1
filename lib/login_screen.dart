@@ -5,6 +5,7 @@ import 'home_screen.dart';
 import 'doctor_homescreen.dart';
 import 'shadow_homescreen.dart';
 import 'package:techcareapp1/forget_password_screen.dart';
+import 'package:geolocator/geolocator.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -15,6 +16,40 @@ class _LoginScreenState extends State<LoginScreen> {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
    String email = '';
    String password = '';
+
+  Future<Position?> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Location services are disabled.')),
+      );
+      return null;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Location permissions are denied')),
+        );
+        return null;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Location permissions are permanently denied')),
+      );
+      return null;
+    }
+
+    return await Geolocator.getCurrentPosition();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,6 +175,17 @@ class _LoginScreenState extends State<LoginScreen> {
                             }
 
                             print("User role: $role, Code: $code");
+
+                          if (role == "patient") {
+                            Position? position = await _determinePosition();
+                            if (position != null) {
+                              await firestore.collection('users').doc(
+                                  userCredential.user!.uid).update({
+                                'latitude': position.latitude,
+                                'longitude': position.longitude,
+                              });
+                            }
+                          }
 
 
                             if (role == "doctor") {

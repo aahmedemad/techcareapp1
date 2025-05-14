@@ -2,6 +2,7 @@
     import 'package:cloud_firestore/cloud_firestore.dart';
     import 'add_patient_screen.dart';
     import 'patient_detail.dart';
+    import 'setting_screen.dart';
 
     class ShadowHomeScreen extends StatefulWidget {
       final String sCode;
@@ -153,7 +154,7 @@
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => AddPatientScreen(sCode: widget.sCode)),
+                    MaterialPageRoute(builder: (context) => AddPatientScreen(sCode: widget.sCode,shadowName: shadowName,)),
                   );
                 },
                 icon: const Icon(Icons.add),
@@ -279,7 +280,13 @@
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Icon(Icons.home, color: Colors.black, size: 30),
-                Icon(Icons.settings, color: Colors.black, size: 30),
+                IconButton(
+                  icon: const Icon(Icons.settings, color: Colors.black, size: 30),
+                  onPressed: () {
+                    Navigator.push(context,
+                      MaterialPageRoute(builder: (context)=> SettingsScreen(userRole: 'shadow',)),);
+                  },
+                ),
               ],
             ),
           ),

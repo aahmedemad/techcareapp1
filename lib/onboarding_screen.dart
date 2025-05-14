@@ -160,8 +160,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ],
           ),
+
           // زر Skip
-          if (_currentIndex != _pages.length - 1)
             Positioned(
               top: 40.0,
               right: 20.0,

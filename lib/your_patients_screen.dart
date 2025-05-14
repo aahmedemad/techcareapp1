@@ -4,6 +4,8 @@ import 'bloodpressurepatients_screen.dart';
 import 'all_patient_screen.dart';
 
 class YourPatientsScreen extends StatelessWidget {
+  final String dCode;
+  YourPatientsScreen({required this.dCode});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,7 +65,7 @@ class YourPatientsScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => DiabeticsScreen()),
+                  MaterialPageRoute(builder: (context) => DiabeticsScreen(dCode: dCode,)),
                 );
               },
             ),
@@ -74,7 +76,7 @@ class YourPatientsScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => BloodPressurePatientsScreen()),
+                  MaterialPageRoute(builder: (context) => BloodPressurePatientsScreen(dCode: dCode)),
                 );
               },
             ),
@@ -85,7 +87,7 @@ class YourPatientsScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AllPatientsScreen()),
+                  MaterialPageRoute(builder: (context) => AllPatientsScreen(dCode: dCode)),
                 );
               },
             ),

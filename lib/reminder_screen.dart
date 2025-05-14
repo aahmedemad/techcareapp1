@@ -206,6 +206,10 @@ class MedicationCard extends StatelessWidget {
             if (label == "Skip") {
               await _updateReminderStatus(reminder.id, "skipped");
               onDelete();
+            }else if (label =="Done"){
+              await _updateReminderStatus(reminder.id, "done");
+              onDelete();
+
             }
           },
         ),

@@ -100,10 +100,10 @@ class PatientDetailScreen extends StatelessWidget {
 
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
+        //  crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 25),
+            SizedBox(height: 0),
             _buildCategoryCard(
               context,
               'images/image 29.jpg',

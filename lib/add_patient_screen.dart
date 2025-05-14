@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'shadow_homescreen.dart';
 
 class AddPatientScreen extends StatefulWidget {
   final String sCode;
-  const AddPatientScreen({super.key, required this.sCode});
+  final String shadowName;
+  const AddPatientScreen({super.key, required this.sCode,required this.shadowName,});
 
   @override
   State<AddPatientScreen> createState() => _AddPatientScreenState();
@@ -11,8 +13,6 @@ class AddPatientScreen extends StatefulWidget {
 
 class _AddPatientScreenState extends State<AddPatientScreen> {
   final codeController = TextEditingController();
-  final nameController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +48,7 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
                           ),
                           SizedBox(height: 5),
                           Text(
-                            "Mohamed",
+                            widget.shadowName.isEmpty ? "Loading..." : widget.shadowName,
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 20,
@@ -84,25 +84,26 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.only(top: 50,left: 16,right: 35),
+
         child: Column(
+
           children: [
-            const SizedBox(height: 40),
+           Align(
+             alignment: Alignment.centerLeft,
+             child:  Text("Enter Patient Code:",
+               style: TextStyle(
+                 color: Colors.black,
+                 fontSize: 32,
+                 fontWeight: FontWeight.w400,
+               ),
+               ),
+           ),
+            const SizedBox(height: 20),
             TextField(
               controller: codeController,
               decoration: InputDecoration(
-                hintText: "example: P-000",
-                labelText: "Enter Patient Code",
-                fillColor: Color(0xFFF6DCC0),
-                filled: true,
-              ),
-            ),
-            const SizedBox(height: 50),
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(
-                hintText: "example: Mohammed Ahmed",
-                labelText: "Enter Patient Name",
+                hintText: "example: P005",
                 fillColor: Color(0xFFF6DCC0),
                 filled: true,
               ),
@@ -111,7 +112,6 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
             ElevatedButton(
               onPressed: () async {
                 String pCode = codeController.text.trim();
-                String pName = nameController.text.trim();
 
                 try {
                   QuerySnapshot patientSnapshot = await FirebaseFirestore.instance
@@ -123,27 +123,18 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
 
                   if (patientSnapshot.docs.isNotEmpty) {
                     var patientDoc = patientSnapshot.docs.first;
-                    var data = patientDoc.data() as Map<String, dynamic>;
-                    String fullName = "${data['firstName']} ${data['lastName']}";
 
-                    if (fullName.toLowerCase() == pName.toLowerCase()) {
-                      await FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(patientDoc.id)
-                          .update({'S-code': widget.sCode});
+                    await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(patientDoc.id)
+                        .update({'S-code': widget.sCode});
 
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Patient Added successfully!'),
-                        backgroundColor: Colors.green,
-                      ));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('Patient added successfully!'),
+                      backgroundColor: Colors.green,
+                    ));
 
-                      Navigator.pop(context);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Name does not match.'),
-                        backgroundColor: Colors.red,
-                      ));
-                    }
+                    Navigator.pop(context);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text('Patient not found.'),
@@ -158,21 +149,24 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
                   ));
                 }
               },
-              child: Text('Done'),
+              child: Text('Done', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 26,),),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFE8883C),
-                foregroundColor: Colors.white,
+                foregroundColor: Colors.black,
                 padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBarWidget(),
+      bottomNavigationBar: BottomNavigationBarWidget(sCode: widget.sCode),
     );
   }
 }
+
 class BottomNavigationBarWidget extends StatelessWidget {
+  final String sCode;
+  const BottomNavigationBarWidget({required this.sCode});
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -186,9 +180,21 @@ class BottomNavigationBarWidget extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Icon(Icons.home, color: Colors.black, size: 30),
-
-            Icon(Icons.settings, color: Colors.black, size: 30),
+            IconButton(
+              icon: const Icon(Icons.home, color: Colors.black, size: 30),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ShadowHomeScreen(sCode: sCode)),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.settings, color: Colors.black, size: 30),
+              onPressed: () {
+                // Settings action
+              },
+            ),
           ],
         ),
       ),

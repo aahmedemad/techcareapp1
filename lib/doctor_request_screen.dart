@@ -4,8 +4,9 @@ import 'home_screen.dart';
 
 class DoctorRequestScreen extends StatelessWidget {
   final String pCode;
+  final String patientName;
 
-  const DoctorRequestScreen ({required this.pCode});
+  const DoctorRequestScreen ({required this.pCode , required this.patientName});
 
   @override
   Widget build(BuildContext context) {
@@ -43,11 +44,11 @@ class DoctorRequestScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 5),
                           Text(
-                            "Dr./Mohamed",
+                            patientName,
                             style: TextStyle(
                               color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w400,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
@@ -88,7 +89,7 @@ class DoctorRequestScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => AddDoctorScreen(pCode: pCode)),
+                      MaterialPageRoute(builder: (context) => AddDoctorScreen(pCode: pCode ,patientName: patientName,)),
                     );
                   },
                   icon: Icon(Icons.person_add,color:Colors.black),
@@ -121,7 +122,7 @@ class DoctorRequestScreen extends StatelessWidget {
         ),
       ),
 
-      bottomNavigationBar: BottomNavigationBarWidget(pCode: pCode,),
+      bottomNavigationBar: BottomNavigationBarWidget(pCode: pCode, patientName: patientName,),
     );
   }
 
@@ -179,7 +180,8 @@ class DoctorRequestScreen extends StatelessWidget {
 
 class BottomNavigationBarWidget extends StatelessWidget {
   final String pCode;
-  const BottomNavigationBarWidget({required this.pCode, super.key});
+  final String patientName;
+  const BottomNavigationBarWidget({required this.pCode, super.key , required this.patientName});
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -189,7 +191,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
         margin:  EdgeInsets.symmetric(horizontal: 17),
         decoration: BoxDecoration(
           color: Color(0xFF2260FF),
-          borderRadius: BorderRadius.circular(31),
+          borderRadius: BorderRadius.circular(37),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -208,12 +210,12 @@ class BottomNavigationBarWidget extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddDoctorScreen(pCode:pCode)),
+                  MaterialPageRoute(builder: (context) => AddDoctorScreen(pCode:pCode , patientName: patientName,)),
                 );
               },
             ),
             IconButton(
-              icon: Icon(Icons.calendar_month_outlined, color: Colors.black, size: 30),
+              icon: Icon(Icons.person, color: Colors.black, size: 30),
               onPressed: () {
                 Navigator.pushNamed(context, '/appointments');
               },

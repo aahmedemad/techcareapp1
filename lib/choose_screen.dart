@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart'; // إضافة الـ BlocProvider
 import 'pressure_screen.dart';
 import 'sugaur_mesurements_screen.dart';
 import 'home_screen.dart';
-
-
+import 'sugar_time_cubit.dart'; // تأكد من أنك استيردت الـ Cubit المناسب
 
 class ChooseScreen extends StatelessWidget {
   final String pCode;
 
-   const ChooseScreen({required this.pCode});
+  const ChooseScreen({required this.pCode});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +44,7 @@ class ChooseScreen extends StatelessWidget {
                       icon: Icon(Icons.arrow_back_ios, color: Colors.white),
                       onPressed: () {
                         Navigator.pushAndRemoveUntil(context,
-                        MaterialPageRoute(builder: (context) => HomeScreen(pCode: pCode)),
+                          MaterialPageRoute(builder: (context) => HomeScreen(pCode: pCode)),
                               (Route<dynamic> route) => false,);
                       },
                     ),
@@ -98,7 +99,10 @@ class ChooseScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => SugarMeasurementsScreen(pCode: pCode),
+                      builder: (context) => BlocProvider(
+                        create: (context) => SugarTimeCubit(),
+                        child: SugarMeasurementsScreen(pCode: pCode),
+                      ),
                     ),
                   );
                 },
@@ -113,7 +117,6 @@ class ChooseScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20),
-              // زرار "Pressure Measurements"
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFFB0D2FF),

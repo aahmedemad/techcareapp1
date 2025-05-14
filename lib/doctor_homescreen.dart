@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'your_patients_screen.dart';
 import 'clinic_screen.dart';
 import 'add_patient_request.dart';
+import 'setting_screen.dart';
 
 class DoctorHomeScreen extends StatefulWidget {
   final String dCode;
@@ -80,16 +81,16 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Hi, Welcome Back",
+                            "Hi, WelcomeBack",
                             style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w400,),
                           ),
                           SizedBox(height: 5),
                           Text(
-                            doctorName.isEmpty ? "Loading..." : doctorName,
+                            doctorName.isEmpty ? "Loading..." :" Dr./$doctorName",
                             style: TextStyle(
                               color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w400,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
@@ -128,10 +129,10 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
               context,
               'images/image 25.jpg',
               "My Patients",
-                  () {
+                () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => YourPatientsScreen()),
+                  MaterialPageRoute(builder: (context) => YourPatientsScreen(dCode: widget.dCode)),
                 );
               },
             ),
@@ -148,7 +149,7 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
               },
             ),
             Spacer(),
-            BottomNavigationBarWidget(dCode: widget.dCode),
+            BottomNavigationBarWidget(dCode: widget.dCode , doctorName: doctorName,),
           ],
         ),
       ),
@@ -196,8 +197,9 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
 
 class BottomNavigationBarWidget extends StatelessWidget {
   final String dCode;
+  final String doctorName;
 
-  const BottomNavigationBarWidget({required this.dCode});
+  const BottomNavigationBarWidget({required this.dCode , required this.doctorName});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -218,7 +220,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AddPatientScreen(dCode: dCode)),
+                MaterialPageRoute(builder: (context) => AddPatientScreen(dCode: dCode ,doctorName: doctorName,)),
               );
             },
           ),
@@ -231,7 +233,8 @@ class BottomNavigationBarWidget extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.black, size: 30),
             onPressed: () {
-              Navigator.pushNamed(context, '/settings');
+              Navigator.push(context,
+                MaterialPageRoute(builder: (context)=> SettingsScreen(userRole: 'doctor',)),);
             },
           ),
         ],

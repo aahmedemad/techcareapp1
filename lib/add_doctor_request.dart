@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'doctor_request_screen.dart';
 import 'home_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'my_doctor.dart';
 
 class AddDoctorScreen extends StatefulWidget {
   final String pCode;
+  final String patientName;
 
-  const AddDoctorScreen ({required this.pCode});
+  const AddDoctorScreen ({required this.pCode , required this.patientName});
 
   @override
   State<AddDoctorScreen> createState() => _AddDoctorScreenState();
@@ -14,6 +17,7 @@ class AddDoctorScreen extends StatefulWidget {
 class _AddDoctorScreenState extends State<AddDoctorScreen> {
   final TextEditingController _codeController = TextEditingController();
   bool requestSent = false;
+
 
   @override
   Widget build(BuildContext context) {
@@ -51,11 +55,11 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                           ),
                           SizedBox(height: 5),
                           Text(
-                            "Dr./Mohamed",
+                            widget.patientName,
                             style: TextStyle(
                               color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w400,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
@@ -102,7 +106,7 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => DoctorRequestScreen (pCode: widget.pCode)),
+                      MaterialPageRoute(builder: (context) => DoctorRequestScreen (pCode: widget.pCode , patientName:widget.patientName ,)),
                     );
                   },
                   style: OutlinedButton.styleFrom(
@@ -136,9 +140,22 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                 backgroundColor: Color(0xFF2260FF),
                 padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
               ),
-              onPressed: () {
+              onPressed: () async {
+                String dCode = _codeController.text.trim();
+
+                if (dCode.isEmpty) return;
+
+                await FirebaseFirestore.instance.collection('doctor_requests').add({
+                  'D-code': dCode,
+                  'P-code': widget.pCode,
+                  'patientName': widget.patientName,
+                  'status': 'pending',
+                  'timestamp': FieldValue.serverTimestamp(),
+                });
+
                 setState(() {
                   requestSent = true;
+                  _codeController.clear();
                 });
               },
               child: Text("Send Request",style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
@@ -167,7 +184,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 15),
       decoration: BoxDecoration(
         color: Color(0xFF2260FF),
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(37),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -188,9 +205,10 @@ class BottomNavigationBarWidget extends StatelessWidget {
             },
           ),
           IconButton(
-            icon: Icon(Icons.calendar_month_outlined, color: Colors.black, size: 30),
+            icon: Icon(Icons.person, color: Colors.black, size: 30),
             onPressed: () {
-              Navigator.pushNamed(context, '/appointments');
+              Navigator.push(context, MaterialPageRoute(builder: (context) => MyDoctorScreen (pCode: pCode)),
+              );
             },
           ),
           IconButton(

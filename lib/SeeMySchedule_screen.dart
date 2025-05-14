@@ -8,7 +8,7 @@ class SeeMyScheduleScreen extends StatefulWidget {
 }
 
 class _SeeMyScheduleScreenState extends State<SeeMyScheduleScreen> {
-  String selectedDay = "Tomorrow";
+  String selectedDay = "ToDay";
   List<Map<String, dynamic>> patients = [];
 
   @override
@@ -20,7 +20,7 @@ class _SeeMyScheduleScreenState extends State<SeeMyScheduleScreen> {
   void _changeDay(bool next) {
     setState(() {
       if (next) {
-        if (selectedDay == "Tomorrow") {
+        if (selectedDay == "ToDay") {
           selectedDay = "Next Day";
         } else if (selectedDay == "Next Day") {
           _showCalendarDialog();
@@ -52,7 +52,7 @@ class _SeeMyScheduleScreenState extends State<SeeMyScheduleScreen> {
     final DateTime now = DateTime.now();
     DateTime targetDate;
 
-    if (selectedDay == "Tomorrow") {
+    if (selectedDay == "ToDay") {
       targetDate = now.add(Duration(days: 1));
     } else if (selectedDay == "Next Day") {
       targetDate = now.add(Duration(days: 2));

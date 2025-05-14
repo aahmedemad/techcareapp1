@@ -248,7 +248,7 @@ class _ClinicAppointmentScreenState extends State<ClinicAppointmentScreen> {
 
             Center(
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (selectedDoctor == 'Doctor' || selectedTime == 'Choose Time' || selectedDay == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Please fill all fields')),
@@ -258,7 +258,21 @@ class _ClinicAppointmentScreenState extends State<ClinicAppointmentScreen> {
 
                   String selectedDate = "${selectedDay!.day} ${getMonthName(selectedDay!.month)} ${selectedDay!.year}";
 
-                  saveAppointment(widget.pCode, selectedDoctor, selectedDate, selectedTime, selectedStatus);
+                  await saveAppointment(widget.pCode, selectedDoctor, selectedDate, selectedTime, selectedStatus);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Appointment booked successfully'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                    setState(() {
+                    selectedDoctor = 'Doctor';
+                    selectedTime = 'Choose Time';
+                    selectedStatus = 'Diabetics';
+                    selectedDay = null;
+                    });
+
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF2260FF)),
                 child: Text('Done', style: TextStyle(fontSize: 18, color: Colors.white)),
@@ -300,7 +314,7 @@ class _ClinicAppointmentScreenState extends State<ClinicAppointmentScreen> {
     return ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][month - 1];
   }
 
-  void saveAppointment(String patientCode, String doctor, String date, String time, String status) async {
+  Future<void> saveAppointment(String patientCode, String doctor, String date, String time, String status) async {
     await FirebaseFirestore.instance.collection('appointments')
         .doc(patientCode).collection('visits')
       .add({

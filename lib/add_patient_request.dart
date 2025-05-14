@@ -4,8 +4,9 @@ import 'doctor_homescreen.dart';
 
 class AddPatientScreen extends StatefulWidget {
   final String dCode;
+  final String doctorName;
 
-  const AddPatientScreen ({required this.dCode});
+  const AddPatientScreen ({required this.dCode ,required this.doctorName});
 
   @override
   State<AddPatientScreen> createState() => _AddPatientScreenState();
@@ -46,16 +47,16 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Hi, Welcome Back",
+                            "Hi, WelcomeBack",
                             style: TextStyle(color: Colors.white, fontSize: 20),
                           ),
                           SizedBox(height: 5),
                           Text(
-                            "Dr./Mohamed",
+                            "Dr./${widget.doctorName}",
                             style: TextStyle(
                               color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w400,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
@@ -102,7 +103,7 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => PatientRequestsScreen (dCode: widget.dCode)),
+                      MaterialPageRoute(builder: (context) => PatientRequestsScreen (dCode: widget.dCode ,doctorName: widget.doctorName,)),
                     );
                   },
                   style: OutlinedButton.styleFrom(

@@ -20,9 +20,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
   late String firstName;
   late String lastName;
   late String mobileNumber;
+  late String age;
   String? selectedRole;
+  String? selectedStatus;
 
   final List<String> roles = ['doctor', 'patient', 'shadow'];
+  final List<String> status = ['diabetic', 'blood pressure', 'both'];
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +60,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(height: 16),
               _buildPasswordField('Password', (value) => password = value),
               SizedBox(height: 16),
+              _buildTextField('age', '30', (value) => age = value),
+              SizedBox(height: 16),
               _buildTextField('Mobile Number', '0123456789', (value) => mobileNumber = value),
               SizedBox(height: 16),
 
@@ -83,7 +88,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ),
               ),
+              if (selectedRole == 'patient') ...[
               SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: selectedStatus,
+                items: status.map((role) {
+                  return DropdownMenuItem<String>(
+                    value: role,
+                    child: Text(role.toLowerCase()),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedStatus = value;
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'Select Status',
+                  filled: true,
+                  fillColor: Colors.blue.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              ],
+              SizedBox(height: 16,),
 
               ElevatedButton(
                   onPressed: () async {
@@ -108,7 +139,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         'email': email,
                         'mobileNumber': mobileNumber,
                         'role': selectedRole,
+                        'age' : age,
+
                       };
+                        if (selectedRole == 'patient') {
+                          userData['status'] = selectedStatus;
+                        }
 
                       if (selectedRole == 'doctor') {
                         userData['D-code'] = newCode;
@@ -119,7 +155,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       }
 
                       await firestore.collection('users').doc(userCredential.user!.uid).set(userData);
-
+                      if (selectedRole == 'patient') {
+                        await firestore.collection('patient').doc(userCredential.user!.uid).set({
+                          'P-code': newCode,
+                          'name': '$firstName $lastName',
+                          'email': email,
+                          'mobile no': mobileNumber,
+                          'age' : age,
+                          'status': selectedStatus,
+                          // ممكن تضيف بيانات مخصصة للمريض هنا كمان
+                        });
+                      }
 
                       if (selectedRole == "doctor") {
                         Navigator.pushReplacement(context,
