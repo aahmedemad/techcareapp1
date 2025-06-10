@@ -10,6 +10,7 @@ import 'package:techcareapp1/reminder_screen.dart';
 import 'package:geolocator/geolocator.dart';
 import 'add_doctor_request.dart';
 import 'my_doctor.dart';
+
 class HomeScreen extends StatefulWidget {
   final String pCode;
 
@@ -347,7 +348,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.person, color: Colors.black, size: 30),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => MyDoctorScreen (pCode: pCode)),
+                Navigator.push(context, MaterialPageRoute(builder: (context) => MyDoctorScreen (pCode: pCode,patientName: patientName)),
                 );
               },
             ),

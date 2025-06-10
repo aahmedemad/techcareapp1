@@ -21,7 +21,6 @@ class _LoginScreenState extends State<LoginScreen> {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Check if location services are enabled
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -29,7 +28,6 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       return null;
     }
-
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -40,14 +38,12 @@ class _LoginScreenState extends State<LoginScreen> {
         return null;
       }
     }
-
     if (permission == LocationPermission.deniedForever) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Location permissions are permanently denied')),
       );
       return null;
     }
-
     return await Geolocator.getCurrentPosition();
   }
 

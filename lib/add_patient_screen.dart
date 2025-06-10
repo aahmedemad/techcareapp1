@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'shadow_homescreen.dart';
+import 'setting_screen.dart';
 
 class AddPatientScreen extends StatefulWidget {
   final String sCode;
@@ -192,7 +193,8 @@ class BottomNavigationBarWidget extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.settings, color: Colors.black, size: 30),
               onPressed: () {
-                // Settings action
+                Navigator.push(context,
+                  MaterialPageRoute(builder: (context)=> SettingsScreen(userRole: 'shadow',)),);
               },
             ),
           ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'add_doctor_request.dart';
 import 'home_screen.dart';
+import 'my_doctor.dart';
 
 class DoctorRequestScreen extends StatelessWidget {
   final String pCode;
@@ -217,7 +218,10 @@ class BottomNavigationBarWidget extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.person, color: Colors.black, size: 30),
               onPressed: () {
-                Navigator.pushNamed(context, '/appointments');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyDoctorScreen(pCode:pCode , patientName: patientName,)),
+                );
               },
             ),
             IconButton(

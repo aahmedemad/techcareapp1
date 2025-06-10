@@ -4,6 +4,7 @@ import 'your_patients_screen.dart';
 import 'clinic_screen.dart';
 import 'add_patient_request.dart';
 import 'setting_screen.dart';
+import 'SeeMySchedule_screen.dart';
 
 class DoctorHomeScreen extends StatefulWidget {
   final String dCode;
@@ -227,7 +228,10 @@ class BottomNavigationBarWidget extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.calendar_month_outlined, color: Colors.black, size: 30),
             onPressed: () {
-              Navigator.pushNamed(context, '/appointments');
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SeeMyScheduleScreen()),
+              );
             },
           ),
           IconButton(

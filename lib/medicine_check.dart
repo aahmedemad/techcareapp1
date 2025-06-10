@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'patient_detail.dart';
 
 class MedicineCheckScreen extends StatelessWidget {
-  const MedicineCheckScreen({super.key});
+  final String pCode;
+  const MedicineCheckScreen({super.key ,required this.pCode});
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +76,7 @@ class MedicineCheckScreen extends StatelessWidget {
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('medicine reminder')
+                    .where('pCode', isEqualTo: pCode)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {

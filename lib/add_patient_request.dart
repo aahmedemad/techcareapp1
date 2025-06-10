@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'patient_request_screen.dart';
 import 'doctor_homescreen.dart';
-
+import 'SeeMySchedule_screen.dart';
 class AddPatientScreen extends StatefulWidget {
   final String dCode;
   final String doctorName;
@@ -82,7 +82,8 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
           ),
         ),
       ),
-      body: Padding(
+      body: SafeArea(
+        child:SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         child: Column(
           children: [
@@ -150,11 +151,12 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
                 'Request Sent Successfully',
                 style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
               ),
-            Spacer(),
+            SizedBox(height: 250,),
             BottomNavigationBarWidget(dCode: widget.dCode),
           ],
         ),
       ),
+      )
     );
   }
 }
@@ -191,7 +193,10 @@ class BottomNavigationBarWidget extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.calendar_month_outlined, color: Colors.black, size: 30),
             onPressed: () {
-              Navigator.pushNamed(context, '/appointments');
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SeeMyScheduleScreen()),
+              );
             },
           ),
           IconButton(

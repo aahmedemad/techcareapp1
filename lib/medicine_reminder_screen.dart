@@ -40,7 +40,7 @@ class _MedicineReminderScreenState extends State<MedicineReminderScreen> {
         "medicine_name": medicineNameController.text,
         "dose": selectedDose,
         "duration": durationController.text,
-        "time": "${selectedTime.hour}:${selectedTime.minute}",
+        "time": "${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}",
         "meal_time": selectedMealTime,
         "timestamp": FieldValue.serverTimestamp(),
       });

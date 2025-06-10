@@ -12,7 +12,6 @@
       @override
       _ShadowHomeScreenState createState() => _ShadowHomeScreenState();
     }
-
     class _ShadowHomeScreenState extends State<ShadowHomeScreen> {
       String shadowName = '';
       List<Map<String, dynamic>> patients = [];
@@ -23,7 +22,6 @@
         fetchShadowName();
         fetchPatients();
       }
-
       void fetchShadowName() async {
         try {
           QuerySnapshot query = await FirebaseFirestore.instance
@@ -106,8 +104,8 @@
                                 shadowName.isEmpty ? "Loading..." : shadowName,
                                 style: TextStyle(
                                   color: Colors.black,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w400,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],

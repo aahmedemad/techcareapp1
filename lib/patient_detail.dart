@@ -111,7 +111,7 @@ class PatientDetailScreen extends StatelessWidget {
                   () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => MedicineCheckScreen ()),
+                      MaterialPageRoute(builder: (context) => MedicineCheckScreen (pCode: pCode,)),
                     );
 
               },

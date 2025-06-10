@@ -85,7 +85,8 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
           ),
         ),
       ),
-      body: Padding(
+      body: SafeArea(
+        child:SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         child: Column(
           children: [
@@ -166,18 +167,20 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                 'Request Sent Successfully',
                 style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
               ),
-            Spacer(),
-            BottomNavigationBarWidget(pCode: widget.pCode),
+            SizedBox(height: 245,),
+            BottomNavigationBarWidget(pCode: widget.pCode, patientName: widget.patientName,),
           ],
         ),
       ),
+      )
     );
   }
 }
 
 class BottomNavigationBarWidget extends StatelessWidget {
   final String pCode;
-  const BottomNavigationBarWidget({required this.pCode});
+  final String patientName;
+  const BottomNavigationBarWidget({required this.pCode , required this.patientName});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -207,7 +210,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.person, color: Colors.black, size: 30),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => MyDoctorScreen (pCode: pCode)),
+              Navigator.push(context, MaterialPageRoute(builder: (context) => MyDoctorScreen (pCode: pCode , patientName:patientName)),
               );
             },
           ),

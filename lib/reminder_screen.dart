@@ -207,9 +207,11 @@ class MedicationCard extends StatelessWidget {
               await _updateReminderStatus(reminder.id, "skipped");
               onDelete();
             }else if (label =="Done"){
-              await _updateReminderStatus(reminder.id, "done");
+              await FirebaseFirestore.instance
+                  .collection("medicine reminder")
+                  .doc(reminder.id)
+                  .delete();
               onDelete();
-
             }
           },
         ),

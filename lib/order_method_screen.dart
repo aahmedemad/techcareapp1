@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'choose_pharmacy_screen.dart';
+import 'addres_screen.dart';
 
 class OrderMethodScreen extends StatelessWidget {
   final String pCode;
@@ -167,7 +168,16 @@ class OrderMethodScreen extends StatelessWidget {
               ),
               child: InkWell(
                 onTap: () {
-                  _sendOrderToFirestore('Delivery', context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EnterAddressScreen(
+                        pCode: pCode,
+                        prescriptionData: prescriptionData,
+                        selectedPharmacy: selectedPharmacy,
+                      ),
+                    ),
+                  );
                 },
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),

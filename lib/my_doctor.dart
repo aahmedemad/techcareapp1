@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'home_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'add_doctor_request.dart';
 
 class MyDoctorScreen extends StatelessWidget {
   final String pCode;
+  final String patientName;
 
-  const MyDoctorScreen({required this.pCode});
+  const MyDoctorScreen({required this.pCode ,required this.patientName});
 
   @override
   Widget build(BuildContext context) {
@@ -190,7 +192,7 @@ class MyDoctorScreen extends StatelessWidget {
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(bottom: 0.0), // رفع الـ BottomNavigationBar
-        child: BottomNavigationBarWidget(pCode: pCode),
+        child: BottomNavigationBarWidget(pCode: pCode ,patientName: patientName,),
       ),
     );
   }
@@ -231,8 +233,9 @@ class LabelValueRow extends StatelessWidget {
 
 class BottomNavigationBarWidget extends StatelessWidget {
   final String pCode;
+  final String patientName;
 
-  const BottomNavigationBarWidget({required this.pCode});
+  const BottomNavigationBarWidget({required this.pCode , required this.patientName});
 
   @override
   Widget build(BuildContext context) {
@@ -260,7 +263,10 @@ class BottomNavigationBarWidget extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.add_circle, color: Colors.black, size: 30),
                 onPressed: () {
-                  // زر الإضافة
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) =>AddDoctorScreen (pCode: pCode, patientName:patientName )),
+                  );
                 },
               ),
               IconButton(
@@ -268,7 +274,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MyDoctorScreen(pCode: pCode)),
+                    MaterialPageRoute(builder: (context) => MyDoctorScreen(pCode: pCode , patientName:patientName)),
                   );
                 },
               ),
