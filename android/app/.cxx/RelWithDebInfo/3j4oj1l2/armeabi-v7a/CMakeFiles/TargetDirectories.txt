@@ -1,0 +1,2 @@
+C:/flutter_projects/techcareapp1/android/app/.cxx/RelWithDebInfo/3j4oj1l2/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/flutter_projects/techcareapp1/android/app/.cxx/RelWithDebInfo/3j4oj1l2/armeabi-v7a/CMakeFiles/rebuild_cache.dir

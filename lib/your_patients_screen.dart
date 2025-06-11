@@ -54,7 +54,7 @@ class YourPatientsScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.only(top: 50, left: 16, right: 16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -69,7 +69,7 @@ class YourPatientsScreen extends StatelessWidget {
                 );
               },
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 50),
             buildCategoryCard(
               title: "Blood Pressure Patients",
               subtitle: "You Can See All Blood Pressure Patients Here.",
@@ -80,7 +80,7 @@ class YourPatientsScreen extends StatelessWidget {
                 );
               },
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 50),
             buildCategoryCard(
               title: "All Patients",
               subtitle: "You Can See All Patients Here.",

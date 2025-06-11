@@ -53,7 +53,9 @@ class MyDoctorScreen extends StatelessWidget {
               String email = doc['email'];
               String code = doc['D-code'];
 
-              return Column(
+              return SafeArea(
+                child: SingleChildScrollView(
+                child:Column(
                 children: [
                   Container(
                     width: double.infinity,
@@ -127,7 +129,7 @@ class MyDoctorScreen extends StatelessWidget {
                         LabelValueRow(label: 'Email', value: email),
                         LabelValueRow(label: 'Code', value: code),
                         LabelValueRow(label: 'Clinic', value: 'El Ebrashy Clinic'),
-                        SizedBox(height: 60),
+                        SizedBox(height: 30),
                         SizedBox(
                           width: double.infinity,
                           child: Center(
@@ -182,9 +184,12 @@ class MyDoctorScreen extends StatelessWidget {
                           ),
                         ),
                       ],
+
                     ),
                   ),
                 ],
+              ),
+                ),
               );
             },
           );

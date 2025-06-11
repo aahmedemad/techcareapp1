@@ -117,74 +117,111 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(height: 16,),
 
               ElevatedButton(
-                  onPressed: () async {
-                    if (email.isEmpty || password.isEmpty || selectedRole == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Please fill in all fields and select a role.')),
-                      );
-                      return;
+                onPressed: () async {
+                  // تحقق من الحقول الفارغة
+                  if (firstName.isEmpty || lastName.isEmpty || email.isEmpty || password.isEmpty ||
+                      mobileNumber.isEmpty || age.isEmpty || selectedRole == null ||
+                      (selectedRole == 'patient' && selectedStatus == null)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Please fill in all fields.')),
+                    );
+                    return;
+                  }
+
+                  // تحقق من صحة الإيميل
+                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Please enter a valid email address.')),
+                    );
+                    return;
+                  }
+
+                  // تحقق من قوة الباسورد
+                  if (password.length < 6) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Password must be at least 6 characters.')),
+                    );
+                    return;
+                  }
+
+                  // تحقق من صحة رقم الموبايل (مصري)
+                  if (!RegExp(r'^01[0-9]{9}$').hasMatch(mobileNumber)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Please enter a valid Egyptian mobile number.')),
+                    );
+                    return;
+                  }
+
+                  // تحقق من السن
+                  int? parsedAge = int.tryParse(age);
+                  if (parsedAge == null || parsedAge <= 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Please enter a valid age.')),
+                    );
+                    return;
+                  }
+
+                  try {
+                    UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+                      email: email.trim(),
+                      password: password.trim(),
+                    );
+
+                    String newCode = await _generateNewCode();
+
+                    Map<String, dynamic> userData = {
+                      'firstName': firstName,
+                      'lastName': lastName,
+                      'email': email,
+                      'mobileNumber': mobileNumber,
+                      'role': selectedRole,
+                      'age': age,
+                    };
+
+                    if (selectedRole == 'patient') {
+                      userData['status'] = selectedStatus;
                     }
 
-                    try {
-                      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
-                        email: email.trim(),
-                        password: password.trim(),
-                      );
+                    if (selectedRole == 'doctor') {
+                      userData['D-code'] = newCode;
+                    } else if (selectedRole == 'patient') {
+                      userData['P-code'] = newCode;
+                    } else if (selectedRole == 'shadow') {
+                      userData['S-code'] = newCode;
+                    }
 
-                      String newCode = await _generateNewCode();
+                    await firestore.collection('users').doc(userCredential.user!.uid).set(userData);
 
-                      Map<String, dynamic> userData = {
-                        'firstName': firstName,
-                        'lastName': lastName,
+                    if (selectedRole == 'patient') {
+                      await firestore.collection('patient').doc(userCredential.user!.uid).set({
+                        'P-code': newCode,
+                        'name': '$firstName $lastName',
                         'email': email,
-                        'mobileNumber': mobileNumber,
-                        'role': selectedRole,
-                        'age' : age,
-
-                      };
-                        if (selectedRole == 'patient') {
-                          userData['status'] = selectedStatus;
-                        }
-
-                      if (selectedRole == 'doctor') {
-                        userData['D-code'] = newCode;
-                      } else if (selectedRole == 'patient') {
-                        userData['P-code'] = newCode;
-                      } else if (selectedRole == 'shadow') {
-                        userData['S-code'] = newCode;
-                      }
-
-                      await firestore.collection('users').doc(userCredential.user!.uid).set(userData);
-                      if (selectedRole == 'patient') {
-                        await firestore.collection('patient').doc(userCredential.user!.uid).set({
-                          'P-code': newCode,
-                          'name': '$firstName $lastName',
-                          'email': email,
-                          'mobile no': mobileNumber,
-                          'age' : age,
-                          'status': selectedStatus,
-                          // ممكن تضيف بيانات مخصصة للمريض هنا كمان
-                        });
-                      }
-
-                      if (selectedRole == "doctor") {
-                        Navigator.pushReplacement(context,
-                            MaterialPageRoute(builder: (context) => DoctorHomeScreen(dCode: newCode)));
-                      } else if (selectedRole == "patient") {
-                        Navigator.pushReplacement(context,
-                            MaterialPageRoute(builder: (context) => HomeScreen(pCode: newCode)));
-                      } else if (selectedRole == "shadow") {
-                        Navigator.pushReplacement(context,
-                            MaterialPageRoute(builder: (context) => ShadowHomeScreen(sCode: newCode)));
-                      } else {
-                        print("Role not recognized");
-                      }
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(e.toString())),
-                      );
+                        'mobile no': mobileNumber,
+                        'age': age,
+                        'status': selectedStatus,
+                      });
                     }
-                  },
+
+                    // التنقل حسب الدور
+                    if (selectedRole == "doctor") {
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => DoctorHomeScreen(dCode: newCode)));
+                    } else if (selectedRole == "patient") {
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => HomeScreen(pCode: newCode)));
+                    } else if (selectedRole == "shadow") {
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => ShadowHomeScreen(sCode: newCode)));
+                    } else {
+                      print("Role not recognized");
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(e.toString())),
+                    );
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF2260FF),
                   shape: RoundedRectangleBorder(
