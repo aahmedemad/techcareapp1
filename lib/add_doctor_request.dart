@@ -146,27 +146,52 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
 
                 if (dCode.isEmpty) return;
 
-                await FirebaseFirestore.instance.collection('doctor_requests').add({
+                // 1. التحقق من وجود طلب جاري أو دكتور مقبول
+                final existingRequest = await FirebaseFirestore.instance
+                    .collection('doctor_requests')
+                    .where('P-code', isEqualTo: widget.pCode)
+                    .where('status',
+                    whereIn: ['pending', 'accepted']) // الطلبات الجارية فقط
+                    .get();
+
+                if (existingRequest.docs.isNotEmpty) {
+                  // المريض لديه بالفعل طلب أو طبيب حالي
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                          'You already have a doctor or a pending request.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+
+                // 2. إرسال الطلب الجديد
+                await FirebaseFirestore.instance
+                    .collection('doctor_requests')
+                    .add({
                   'D-code': dCode,
                   'P-code': widget.pCode,
                   'patientName': widget.patientName,
                   'status': 'pending',
                   'timestamp': FieldValue.serverTimestamp(),
                 });
-
                 setState(() {
                   requestSent = true;
                   _codeController.clear();
                 });
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Request Sent Successfully'),
+                      backgroundColor: Colors.green,
+                    )
+                );
               },
               child: Text("Send Request",style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
             ),
+
+
             SizedBox(height: 20),
-            if (requestSent)
-              Text(
-                'Request Sent Successfully',
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-              ),
             SizedBox(height: 245,),
             BottomNavigationBarWidget(pCode: widget.pCode, patientName: widget.patientName,),
           ],

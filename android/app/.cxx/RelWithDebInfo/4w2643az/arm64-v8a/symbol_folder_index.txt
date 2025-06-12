@@ -1,0 +1,1 @@
+C:\flutter_projects\techcareapp1\build\app\intermediates\cxx\RelWithDebInfo\4w2643az\obj\arm64-v8a

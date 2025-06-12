@@ -1,0 +1,2 @@
+C:/flutter_projects/techcareapp1/android/app/.cxx/Debug/3q3y3c1a/x86/CMakeFiles/edit_cache.dir
+C:/flutter_projects/techcareapp1/android/app/.cxx/Debug/3q3y3c1a/x86/CMakeFiles/rebuild_cache.dir
