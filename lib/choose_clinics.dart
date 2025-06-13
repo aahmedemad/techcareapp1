@@ -1,10 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
 import 'clinic_appoi_screen.dart';
+import 'home_screen.dart';
+
 class ChooseClinicScreen extends StatelessWidget {
   final String pCode;
+  final String patientName;
 
-  const ChooseClinicScreen({required this.pCode});
+
+  const ChooseClinicScreen({required this.pCode,required this.patientName});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,20 +32,21 @@ class ChooseClinicScreen extends StatelessWidget {
                       'images/image 11.jpg',
                       height: 40,
                       width: 40,
-                      fit: BoxFit.cover, //
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
                 SizedBox(height: 10),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     IconButton(
                       icon: Icon(Icons.arrow_back_ios, color: Colors.white),
                       onPressed: () {
-                        Navigator.pushAndRemoveUntil(context,
+                        Navigator.pushAndRemoveUntil(
+                          context,
                           MaterialPageRoute(builder: (context) => HomeScreen(pCode: pCode)),
-                              (Route<dynamic> route) => false,);
+                              (Route<dynamic> route) => false,
+                        );
                       },
                     ),
                     Padding(
@@ -62,56 +68,62 @@ class ChooseClinicScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: Center(
+      body: FutureBuilder<QuerySnapshot>(
+        future: FirebaseFirestore.instance.collection('Clinics').get(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
 
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          final clinics = snapshot.data!.docs;
+
+          return ListView(
             children: [
-
               Padding(
-                padding: EdgeInsets.symmetric(horizontal:20,vertical:30),
-                child:Align(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "Available Clinics:",
-                    style:TextStyle(fontSize:26,  fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
                   ),
                 ),
               ),
+              ...clinics.map((doc) {
+                final data = doc.data() as Map<String, dynamic>;
+                final cCode = data['C-code']?? 'No Code';
 
-              // عرض العيادات
-              ClinicCard(
-                logoPath: "images/image 35.png",
-                clinicName: "El Ebrashy Clinics",
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ClinicAppointmentScreen(pCode: pCode)),
-                  );
-                },
-              ),
-
-
-
-              SizedBox(height: 50),
-
-              ClinicCard(
-                logoPath: "images/image 36.png",
-                clinicName: "KDC",
-
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ClinicAppointmentScreen(pCode: pCode)),
-                  );
-                },
-              ),
-
-              SizedBox(height: 20),
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: ClinicCard(
+                    logoPath: data['logoPath'] ?? 'images/image 35.png',
+                    clinicName: data['Name'] ?? 'Unknown Clinic',
+                    cCode: data['C-code']?? 'Unknown Code',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ClinicAppointmentScreen(
+                            pCode: pCode,
+                            clinicId: doc.id,
+                            clinicName: data['Name'],
+                            clinicLogo: data['logoPath'],
+                            patientName: patientName,
+                            cCode:cCode,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              }).toList(),
             ],
-          ),
-
+          );
+        },
       ),
     );
   }
@@ -120,9 +132,10 @@ class ChooseClinicScreen extends StatelessWidget {
 class ClinicCard extends StatelessWidget {
   final String logoPath;
   final String clinicName;
+  final String cCode;
   final VoidCallback onTap;
 
-  ClinicCard({required this.logoPath, required this.clinicName, required this.onTap});
+  ClinicCard({required this.logoPath, required this.clinicName,required this.cCode, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -132,18 +145,17 @@ class ClinicCard extends StatelessWidget {
         margin: EdgeInsets.symmetric(horizontal: 20),
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color:  Color(0xFFCAD6FF),
+          color: Color(0xFFCAD6FF),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
-
           children: [
             Image.asset(logoPath, width: 40, height: 40),
             SizedBox(width: 10),
             Expanded(
               child: Text(
                 clinicName,
-                style:TextStyle(fontSize:26,  fontWeight: FontWeight.w500,),
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
               ),
             ),
           ],

@@ -237,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ChooseClinicScreen(pCode: widget.pCode)),
+                    MaterialPageRoute(builder: (context) => ChooseClinicScreen(pCode: widget.pCode,patientName: patientName, )),
                   );
                 },
                 child: buildFeatureCard('images/image 30.jpg', "Clinics"),

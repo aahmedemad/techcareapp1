@@ -154,9 +154,22 @@ class MyDoctorScreen extends StatelessWidget {
                                 );
 
                                 if (confirmed) {
+                                  // 1. حذف العلاقة من doctor_patients
                                   await FirebaseFirestore.instance
                                       .collection('doctor_patients')
                                       .where('P-code', isEqualTo: pCode)
+                                      .get()
+                                      .then((snapshot) {
+                                    for (var doc in snapshot.docs) {
+                                      doc.reference.delete();
+                                    }
+                                  });
+
+                                  // 2. حذف الطلبات المقبولة من doctor_requests
+                                  await FirebaseFirestore.instance
+                                      .collection('doctor_requests')
+                                      .where('P-code', isEqualTo: pCode)
+                                      .where('status', isEqualTo: 'accepted')
                                       .get()
                                       .then((snapshot) {
                                     for (var doc in snapshot.docs) {
@@ -168,7 +181,6 @@ class MyDoctorScreen extends StatelessWidget {
                                     SnackBar(content: Text('Doctor removed successfully')),
                                   );
 
-                                  // يمكنك الرجوع للشاشة السابقة أو تحديث الواجهة
                                   Navigator.pop(context);
                                 }
                               },

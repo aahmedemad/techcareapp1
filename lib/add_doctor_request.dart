@@ -147,24 +147,44 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                 if (dCode.isEmpty) return;
 
                 // 1. التحقق من وجود طلب جاري أو دكتور مقبول
-                final existingRequest = await FirebaseFirestore.instance
+                final existingAccepted = await FirebaseFirestore.instance
                     .collection('doctor_requests')
                     .where('P-code', isEqualTo: widget.pCode)
-                    .where('status',
-                    whereIn: ['pending', 'accepted']) // الطلبات الجارية فقط
+                    .where('status', isEqualTo: 'accepted')
                     .get();
 
-                if (existingRequest.docs.isNotEmpty) {
-                  // المريض لديه بالفعل طلب أو طبيب حالي
+// لو في طلب مقبول حاليًا، امنع الإرسال
+                if (existingAccepted.docs.isNotEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(
-                          'You already have a doctor or a pending request.'),
+                      content: Text('You already have a doctor.'),
                       backgroundColor: Colors.red,
                     ),
                   );
                   return;
                 }
+
+// امسح أي طلبات معلقة قبل إرسال الجديد
+                final existingPending = await FirebaseFirestore.instance
+                    .collection('doctor_requests')
+                    .where('P-code', isEqualTo: widget.pCode)
+                    .where('status', isEqualTo: 'pending')
+                    .get();
+
+                for (var doc in existingPending.docs) {
+                  await doc.reference.delete();
+                }
+
+// الآن أرسل الطلب الجديد
+                await FirebaseFirestore.instance
+                    .collection('doctor_requests')
+                    .add({
+                  'D-code': dCode,
+                  'P-code': widget.pCode,
+                  'patientName': widget.patientName,
+                  'status': 'pending',
+                  'timestamp': FieldValue.serverTimestamp(),
+                });
 
                 // 2. إرسال الطلب الجديد
                 await FirebaseFirestore.instance

@@ -4,8 +4,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ClinicAppointmentScreen extends StatefulWidget {
   final String pCode;
+  final String clinicId;
+  final String clinicName;
+  final String clinicLogo;
+  final String patientName;
+  final String cCode;
 
-  ClinicAppointmentScreen({required this.pCode});
+  ClinicAppointmentScreen({required this.pCode,required this.clinicId,required this.clinicName, required this.clinicLogo, required this.patientName,required this.cCode });
 
   @override
   _ClinicAppointmentScreenState createState() =>
@@ -18,6 +23,7 @@ class _ClinicAppointmentScreenState extends State<ClinicAppointmentScreen> {
   String selectedDoctor = 'Doctor';
   String selectedTime = 'Choose Time';
   String selectedStatus = 'Diabetics';
+  String selectedDoctorCode = 'none';
   TextEditingController patientCodeController = TextEditingController();
 
 
@@ -27,13 +33,27 @@ class _ClinicAppointmentScreenState extends State<ClinicAppointmentScreen> {
   DateTime focusedDay = DateTime.now();
   DateTime? selectedDay;
 
-  Future<List<String>> fetchDoctors() async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('Doctor').get();
-    List<String> doctorNames = ['Doctor'];
+
+
+  Future<Map<String, String>> fetchDoctors() async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('role', isEqualTo: 'doctor')
+        .get();
+
+    Map<String, String> doctors = {
+      'Doctor': 'none',
+    };
+
     for (var doc in querySnapshot.docs) {
-      doctorNames.add(doc['Doctor name']);
+      String firstName = doc['firstName'] ?? '';
+      String lastName = doc['lastName'] ?? '';
+      String fullName = '$firstName $lastName';
+      String dCode = doc['D-code'] ?? '';
+      doctors[fullName] = dCode;
     }
-    return doctorNames;
+
+    return doctors;
   }
 
   @override
@@ -111,8 +131,7 @@ class _ClinicAppointmentScreenState extends State<ClinicAppointmentScreen> {
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('appointments')
-                    .doc(widget.pCode)
-                    .collection('visits')
+                    .where('pCode',isEqualTo: widget.pCode)
                     .orderBy('createdAt', descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
@@ -165,7 +184,7 @@ class _ClinicAppointmentScreenState extends State<ClinicAppointmentScreen> {
             ),
 
             Text('Choose Doctor', style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500)),
-            FutureBuilder<List<String>>(
+            FutureBuilder<Map<String, String>>(
               future: fetchDoctors(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -175,13 +194,17 @@ class _ClinicAppointmentScreenState extends State<ClinicAppointmentScreen> {
                   return Center(child: Text('Error loading doctors'));
                 }
 
-                return buildDropdownMenu(snapshot.data!, selectedDoctor, (value) {
+                Map<String, String> doctorMap = snapshot.data!;
+                List<String> doctorNames = doctorMap.keys.toList();
+
+                return buildDropdownMenu(doctorNames, selectedDoctor, (value) {
                   setState(() {
                     selectedDoctor = value!;
+                    selectedDoctorCode = doctorMap[value] ?? 'none';
                   });
                 });
               },
-            ),
+            ) ,
             SizedBox(height: 16),
 
             Center(
@@ -258,7 +281,7 @@ class _ClinicAppointmentScreenState extends State<ClinicAppointmentScreen> {
 
                   String selectedDate = "${selectedDay!.day} ${getMonthName(selectedDay!.month)} ${selectedDay!.year}";
 
-                  await saveAppointment(widget.pCode, selectedDoctor, selectedDate, selectedTime, selectedStatus);
+                  await saveAppointment(widget.pCode, selectedDoctor, selectedDate, selectedTime, selectedStatus , widget.clinicId ,widget.clinicName ,widget.clinicLogo, widget.cCode,);
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -268,6 +291,7 @@ class _ClinicAppointmentScreenState extends State<ClinicAppointmentScreen> {
                   );
                     setState(() {
                     selectedDoctor = 'Doctor';
+                    selectedDoctorCode ='none';
                     selectedTime = 'Choose Time';
                     selectedStatus = 'Diabetics';
                     selectedDay = null;
@@ -314,15 +338,20 @@ class _ClinicAppointmentScreenState extends State<ClinicAppointmentScreen> {
     return ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][month - 1];
   }
 
-  Future<void> saveAppointment(String patientCode, String doctor, String date, String time, String status) async {
+  Future<void> saveAppointment(String patientCode, String doctor, String date, String time, String status ,String clinicId, String clinicName,String clinicLogo,String cCode ) async {
     await FirebaseFirestore.instance.collection('appointments')
-        .doc(patientCode).collection('visits')
       .add({
       'pCode': widget.pCode,
+      'patirntName': widget.patientName,
       'doctor': doctor,
       'date': date,
       'time': time,
       'status': status,
+      'clinicId':clinicId,
+      'clinicName':clinicName,
+      'clinicLogo':clinicLogo,
+      'C-code':cCode,
+      'D-code': selectedDoctorCode,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }

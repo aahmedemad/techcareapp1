@@ -153,15 +153,19 @@ class _PressureMeasurementScreenState extends State<PressureMeasurementScreen> {
                         Navigator.pop(context);
                       },
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10.0),
-                      child: Text(
-                        "Pressure Measurement",
-                        style: TextStyle(
-                          fontFamily: 'LeagueSpartan',
-                          fontSize: 31,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
+                    // لف أداة Text باستخدام Expanded
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10.0, right: 10.0), // تمت إضافة حشوة يمنى لتباعد أفضل
+                        child: Text(
+                          "Pressure Measurement",
+                          style: TextStyle(
+                            fontFamily: 'LeagueSpartan',
+                            fontSize: 31,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                          overflow: TextOverflow.ellipsis, // أضف هذا للتعامل مع النصوص الطويلة جداً بأناقة
                         ),
                       ),
                     ),

@@ -102,7 +102,7 @@ class YourPatientsScreen extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        height: 158,
+        height: 170,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
